@@ -50,7 +50,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint8_t rx_buffer[256];
+uint8_t rx_flag = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,6 +100,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   servo_init();
   /* USER CODE END 2 */
+  HAL_UART_Receive_IT(&huart1, (uint8_t *)rx_buffer, 256);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -118,7 +120,7 @@ int main(void)
       human = 1;
     }
     HAL_UART_Transmit(&huart1, (uint8_t *)message, sprintf(message, "Temperature: %.2f, Humidity: %d, Light: %d, Human: %d", temperature, humidity, light, human), 1000);
-    HAL_Delay(1000);
+    HAL_Delay(10000);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -181,6 +183,16 @@ void getLightStrength(uint32_t *light)
   // *light = (uint32_t)(*light * 1.0 / (1<<digits));
   HAL_ADC_Stop(&hadc1);
 }
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+  if (huart->Instance == USART1)
+  {
+    HAL_UART_Transmit(&huart1, (uint8_t *)rx_buffer, 1, 1000);
+    servo_set_angle(rx_buffer[0]);
+  }
+}
+
 /* USER CODE END 4 */
 
 /**
