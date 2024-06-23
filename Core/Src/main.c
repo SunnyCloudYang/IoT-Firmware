@@ -61,6 +61,8 @@ uint8_t aircon_state = 0;
 uint8_t aircon_temp = 26;
 uint8_t aircon_mode = 0;
 uint32_t interval = 1*1000;
+uint8_t door_channel = 1;
+uint8_t light_channel = 2;
 struct sensor_equipment sensor;
 struct actuator_equipment actuator;
 /* USER CODE END PV */
@@ -110,7 +112,14 @@ int main(void)
   MX_TIM1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  servo_init();
+  if (actuator.door_lock)
+  {
+    servo_init(door_channel);
+  }
+  if (actuator.light_switch)
+  {
+    servo_init(light_channel);
+  }
   sensor_init();
   /* USER CODE END 2 */
   HAL_UART_Receive_IT(&huart1, (uint8_t *)rx_buffer, MSG_LEN);
@@ -138,7 +147,7 @@ int main(void)
     {
       human = 0;
     }
-    HAL_UART_Transmit(&huart1, (uint8_t *)message, sprintf(message, "{T: %.2fC, H: %d%%, L: %dlx, M: %d, I: %d}\n", temperature, humidity, light, human, light_state), 1000);
+    HAL_UART_Transmit(&huart1, (uint8_t *)message, sprintf(message, "{T: %.2fC, H: %d%%, L: %dlx, M: %d, I: %d, P:%d}\n", temperature, humidity, light, human, light_state, pressure), 1000);
     HAL_Delay(interval);
     /* USER CODE BEGIN 3 */
   }
@@ -283,48 +292,67 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
   if (huart->Instance == USART1)
   {
-    // format: "%3d %3d" (angle, interval)
-    char message[] = "\"%%3d %%3d %%3d\" (door, aircon, interval)";
+    char message[] = "\"%%3d %%3d %%3d %%3d\"%%(door, aircon, light, interval)\n";
     if (rx_buffer[6] == '?') 
     {
-      HAL_UART_Transmit(&huart1, (uint8_t *)message, 27, 1000);
-      HAL_UART_Receive_IT(&huart1, (uint8_t *)rx_buffer, MSG_LEN);
-      return;
-    }
-    uint8_t recv_angle = atoi(rx_buffer);
-    uint8_t recv_aircon_power = rx_buffer[4] - '0';
-    uint8_t recv_aircon_temp = rx_buffer[5] - '0';  // 0 down, 1 stay, 2 up
-    uint8_t recv_aircon_mode = rx_buffer[6] - '0';
-    uint16_t recv_interval = atoi(rx_buffer + 7);
-    HAL_UART_Transmit(&huart1, (uint8_t *)rx_buffer, MSG_LEN, 1000);
-
-    servo_set_angle(recv_angle);
-
-    if (recv_aircon_power == 1)
-    {
-      aircon_state = 1;
-      IR_SetPower(recv_aircon_power);
-      IR_SetTemperature(recv_aircon_temp + aircon_temp - 1);
-      IR_SetMode(recv_aircon_mode);
+      HAL_UART_Transmit(&huart1, (uint8_t *)message, 100, 1000);
     }
     else
     {
-      aircon_state = 0;
-      IR_SetPower(recv_aircon_power);
-    }
+      uint8_t recv_door = atoi(rx_buffer);
+      uint8_t recv_light = atoi(rx_buffer+7);
+      uint8_t recv_aircon_power = rx_buffer[4] - '0';
+      uint8_t recv_aircon_temp = rx_buffer[5] - '0';  // 0 down, 1 stay, 2 up
+      uint8_t recv_aircon_mode = rx_buffer[6] - '0';
+      uint16_t recv_interval = atoi(rx_buffer + 10);
+      HAL_UART_Transmit(&huart1, (uint8_t *)rx_buffer, MSG_LEN, 1000);
 
-    if (recv_interval == 0)
-    {
-      recv_interval = 1;
-    }
-    interval = recv_interval * 1000;
-    if (recv_angle < 90)
-    {
-      light_state = 0;
-    }
-    else
-    {
-      light_state = 1;
+      if (actuator.door_lock && recv_door != door_state)
+      {
+        if (recv_door == 1)
+        {
+          door_state = 1;
+          servo_set_angle(door_channel, 0);
+        }
+        else
+        {
+          door_state = 0;
+          servo_set_angle(door_channel, 180);
+        }
+      }
+      
+      if (actuator.light_switch && recv_light != light_state)
+      {
+        if (recv_light == 1)
+        {
+          light_state = 1;
+          servo_set_angle(light_channel, 70);
+        }
+        else
+        {
+          light_state = 0;
+          servo_set_angle(light_channel, 112);
+        }
+      }
+
+      if (recv_aircon_power == 1)
+      {
+        aircon_state = 1;
+        IR_SetPower(recv_aircon_power);
+        IR_SetTemperature(recv_aircon_temp + aircon_temp - 1);
+        IR_SetMode(recv_aircon_mode);
+      }
+      else
+      {
+        aircon_state = 0;
+        IR_SetPower(recv_aircon_power);
+      }
+
+      if (recv_interval == 0)
+      {
+        recv_interval = 1;
+      }
+      interval = recv_interval * 1000;
     }
   }
   HAL_UART_Receive_IT(&huart1, (uint8_t *)rx_buffer, MSG_LEN);
