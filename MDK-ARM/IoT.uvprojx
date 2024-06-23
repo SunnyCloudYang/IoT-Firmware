@@ -395,6 +395,21 @@
           <GroupName>Application/User/Core</GroupName>
           <Files>
             <File>
+              <FileName>servo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\servo.c</FilePath>
+            </File>
+            <File>
+              <FileName>SGP30.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\SGP30.c</FilePath>
+            </File>
+            <File>
+              <FileName>SHTC3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\SHTC3.c</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/main.c</FilePath>
@@ -433,21 +448,6 @@
               <FileName>stm32f1xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f1xx_hal_msp.c</FilePath>
-            </File>
-            <File>
-              <FileName>servo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\servo.c</FilePath>
-            </File>
-            <File>
-              <FileName>SGP30.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\SGP30.c</FilePath>
-            </File>
-            <File>
-              <FileName>SHTC3.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Core\Src\SHTC3.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1,6 +1,3 @@
-// Copyright (c) Konstantin Belyalov. All rights reserved.
-// Licensed under the MIT license.
-
 #ifndef __SHTC3_H
 #define __SHTC3_H
 
@@ -11,7 +8,6 @@
 #else
 #define EXPORT
 #endif
-
 
 // The shtc3 provides a serial number individualized for each device
 // Params:
@@ -38,7 +34,7 @@ EXPORT uint32_t shtc3_wakeup(I2C_HandleTypeDef *hi2c);
 //  - `temp` measured temperature, in C multiplied by 100 (e.g. 24.1C -> 2410)
 //  - `hum` measured relative humidity, in percents
 // Returns zero in case of error
-EXPORT uint32_t shtc3_perform_measurements(I2C_HandleTypeDef *hi2c, int32_t* temp, int32_t* hum);
+EXPORT uint32_t shtc3_perform_measurements(I2C_HandleTypeDef *hi2c, int32_t *temp, int32_t *hum);
 
 // Start temperature/humidity measurements using "clock stretch" approach, in low power mode.
 // After completed - values can be obtained by shtc3_read_measurements()
@@ -47,9 +43,9 @@ EXPORT uint32_t shtc3_perform_measurements(I2C_HandleTypeDef *hi2c, int32_t* tem
 //  - `temp` measured temperature, in C multiplied by 100 (e.g. 24.1C -> 2410)
 //  - `hum` measured relative humidity, in percents
 // Returns zero in case of error
-EXPORT uint32_t shtc3_perform_measurements_low_power(I2C_HandleTypeDef *hi2c, int32_t* out_temp, int32_t* out_hum);
+EXPORT uint32_t shtc3_perform_measurements_low_power(I2C_HandleTypeDef *hi2c, int32_t *out_temp, int32_t *out_hum);
 
 // Read temperature/humidity measurements from sensor.
-EXPORT void get_temp_and_humid(I2C_HandleTypeDef *hi2c, float *temp, int32_t *humid);
+EXPORT void getTempAndHumid(I2C_HandleTypeDef *hi2c, float *temp, int32_t *humid);
 
 #endif

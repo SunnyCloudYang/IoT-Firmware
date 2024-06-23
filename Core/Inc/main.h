@@ -36,7 +36,20 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+typedef struct sensor_equipment {
+  uint8_t SHTC3;
+  uint8_t SGP30;
+  uint8_t AHT20;
+  uint8_t BMP280;
+  uint8_t light_adc;
+} sensor_equipment;
 
+typedef struct actuator_equipment {
+  uint8_t IR;
+  uint8_t servo;
+  uint8_t light_switch;
+  uint8_t door_lock;
+} actuator_equipment;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
